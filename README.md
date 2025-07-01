@@ -1,3 +1,4 @@
+
 # Django Shop
 
 This is an educational Django project I built to learn and understand Django concepts. It's a simple e-commerce site that covers various Django fundamentals.

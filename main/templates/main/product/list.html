@@ -7,7 +7,6 @@
 {% block content %}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>{% if category %}{{ category.name }}{% else %}All Products{% endif %}</h1>
-        
         <div class="dropdown">
             <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                 Sort
@@ -35,13 +34,8 @@
                             <h5 class="card-title">
                                 <a href="{{ product.get_absolute_url }}" class="text-decoration-none">{{ product.name }}</a>
                             </h5>
-                            <p class="card-text mt-auto">{{ product.price }} USD</p>
-                            <div class="d-flex gap-2 mt-2">
-                                <a href="{{ product.get_absolute_url }}" class="btn btn-outline-primary flex-fill">View Details</a>
-                                <a href="{% url 'cart:cart_add' product.id %}" class="btn btn-success">
-                                    <i class="bi bi-cart-plus"></i>
-                                </a>
-                            </div>
+                            <p class="card-text mt-auto">${{ product.price }}</p>
+                            <a href="{{ product.get_absolute_url }}" class="btn btn-outline-primary mt-2">View Details</a>
                         </div>
                     </div>
                 </div>

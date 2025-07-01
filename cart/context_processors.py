@@ -1,22 +1,11 @@
-from main.models import Product
+from .cart import Cart
 
-def cart_processor(request):
-    cart = request.session.get('cart', {})
-    cart_items = []
-    cart_count = 0
-    
-    for product_id, quantity in cart.items():
-        try:
-            product = Product.objects.get(id=product_id)
-            cart_items.append({
-                'product': product,
-                'quantity': quantity
-            })
-            cart_count += quantity
-        except Product.DoesNotExist:
-            continue
-    
+def cart(request):
+    """Context processor to make cart available in all templates."""
+    cart_instance = Cart(request)
     return {
-        'cart': cart_items,
-        'cart_count': cart_count
-    } 
+        'cart': cart_instance,
+        'cart_count': len(cart_instance),
+        'cart_total': cart_instance.get_formatted_total(),
+        'is_cart_empty': cart_instance.is_empty(),
+    }

@@ -31,7 +31,7 @@
                     <a href="{% url 'cart:cart_detail' %}" class="btn btn-outline-light position-relative me-3">
                         <i class="bi bi-cart"></i> Cart
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                            {{ cart_count|default:0 }}
+                            {{ cart_count }}
                         </span>
                     </a>
                 </div>
@@ -39,10 +39,21 @@
         </div>
     </nav>
 
-    <main class="container mt-4 mb-5">
+    <div class="container mt-4 mb-5">
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
         {% block content %}
         {% endblock %}
-    </main>
+    </div>
 
     <footer class="bg-dark text-white py-4 mt-5">
         <div class="container">
@@ -53,7 +64,7 @@
                 </div>
                 <div class="col-md-4">
                     <h5>Contact</h5>
-                    <p>Email: info@techshop.com<br>Phone: +1 (555) 123-4567</p>
+                    <p>Email: store@gmail.com<br>Phone: +45 71 45 34 23</p>
                 </div>
                 <div class="col-md-4">
                     <h5>Follow Us</h5>

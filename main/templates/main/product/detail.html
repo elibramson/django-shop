@@ -21,9 +21,11 @@
                     <p>{{ product.description|linebreaks }}</p>
                 </div>
                 <div class="mt-4">
-                    <a href="{% url 'cart:cart_add' product.id %}" class="btn btn-primary btn-lg">
-                        <i class="bi bi-cart-plus"></i> Add to Cart
-                    </a>
+                    <form action="{% url "cart:cart_add" product.id %}" method="post">
+                        {{ cart_product_form }}
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary btn-lg">Add to Cart</button>
+                    </form>
                 </div>
             </div>
         </div>
