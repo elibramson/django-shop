@@ -1,56 +1,292 @@
 {% extends "main/base.html" %}
 
-{% block title %}{{ product.name }}{% endblock %}
+{% block title %}{{ product.name }} - TechShop{% endblock %}
 
 {% block content %}
-    <div class="product-detail">
-        <div class="row">
-            <div class="col-md-6">
-                <img src="{{ product.image.url }}" class="img-fluid rounded" alt="{{ product.name }}">
-            </div>
-            <div class="col-md-6">
-                <h1>{{ product.name }}</h1>
-                <p class="price h4 text-danger">${{ product.price }}</p>
-                <p class="text-muted">Category: 
-                    <a href="{{ product.category.get_absolute_url }}">
+    <div class="container py-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'main:product_list' %}" class="text-decoration-none">
+                        <i class="bi bi-house me-1"></i>Home
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{{ product.category.get_absolute_url }}" class="text-decoration-none">
                         {{ product.category.name }}
                     </a>
-                </p>
-                <div class="description mt-4">
-                    <h3>Description</h3>
-                    <p>{{ product.description|linebreaks }}</p>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="product-image-container">
+                    <img src="{{ product.image.url }}" class="img-fluid rounded-3 shadow" alt="{{ product.name }}" id="productImage">
+                    <div class="image-overlay">
+                        <button class="btn btn-light btn-sm" onclick="zoomImage()">
+                            <i class="bi bi-zoom-in"></i>
+                        </button>
+                    </div>
                 </div>
-                <div class="mt-4">
-                    <form action="{% url "cart:cart_add" product.id %}" method="post">
-                        {{ cart_product_form }}
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-primary btn-lg">Add to Cart</button>
-                    </form>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="product-info">
+                    <h1 class="display-5 fw-bold mb-3">{{ product.name }}</h1>
+                    
+                    <div class="price-section mb-4">
+                        <span class="price display-6">{{ product.formatted_price }}</span>
+                        {% if product.available %}
+                            <span class="badge bg-success ms-3">
+                                <i class="bi bi-check-circle me-1"></i>In Stock
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger ms-3">
+                                <i class="bi bi-x-circle me-1"></i>Out of Stock
+                            </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="category-info mb-4">
+                        <p class="text-muted mb-2">
+                            <i class="bi bi-tag me-2"></i>Category: 
+                            <a href="{{ product.category.get_absolute_url }}" class="text-decoration-none">
+                                {{ product.category.name }}
+                            </a>
+                        </p>
+                        <p class="text-muted mb-0">
+                            <i class="bi bi-calendar me-2"></i>Added: {{ product.created|date:"M d, Y" }}
+                        </p>
+                    </div>
+                    
+                    {% if product.description %}
+                        <div class="description-section mb-4">
+                            <h4 class="mb-3">
+                                <i class="bi bi-info-circle me-2"></i>Description
+                            </h4>
+                            <div class="description-content">
+                                {{ product.description|linebreaks }}
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if product.available %}
+                        <div class="action-section">
+                            <form action="{% url 'cart:cart_add' product.id %}" method="post" class="mb-3">
+                                {{ cart_product_form }}
+                                {% csrf_token %}
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            This product is currently out of stock. Please check back later.
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
 
         {% if related_products %}
-        <div class="related-products mt-5">
-            <h2>Related Products</h2>
-            <div class="row">
-                {% for product in related_products %}
-                    <div class="col-md-3 mb-4">
-                        <div class="card h-100">
-                            <a href="{{ product.get_absolute_url }}">
-                                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
-                            </a>
-                            <div class="card-body">
-                                <h5 class="card-title">
-                                    <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
-                                </h5>
-                                <p class="card-text">${{ product.price }}</p>
+            <div class="related-products mt-5">
+                <div class="section-header text-center mb-5">
+                    <h2 class="display-6 fw-bold">
+                        <i class="bi bi-grid-3x3-gap me-3"></i>Related Products
+                    </h2>
+                    <p class="text-muted">You might also like these products</p>
+                </div>
+                
+                <div class="row">
+                    {% for related_product in related_products %}
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="card h-100 product-card">
+                                <div class="position-relative">
+                                    <a href="{{ related_product.get_absolute_url }}">
+                                        <img src="{{ related_product.image.url }}" class="card-img-top" alt="{{ related_product.name }}">
+                                    </a>
+                                    <div class="product-overlay">
+                                        <a href="{{ related_product.get_absolute_url }}" class="btn btn-primary btn-sm">
+                                            <i class="bi bi-eye me-1"></i>View
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="card-body d-flex flex-column">
+                                    <h6 class="card-title">
+                                        <a href="{{ related_product.get_absolute_url }}" class="text-decoration-none text-dark">
+                                            {{ related_product.name }}
+                                        </a>
+                                    </h6>
+                                    <div class="mt-auto">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="price">{{ related_product.formatted_price }}</span>
+                                            {% if related_product.available %}
+                                                <span class="badge bg-success">In Stock</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <a href="{{ related_product.get_absolute_url }}" class="btn btn-outline-primary btn-sm flex-fill">
+                                                <i class="bi bi-eye me-1"></i>View
+                                            </a>
+                                            {% if related_product.available %}
+                                                <a href="{% url 'cart:cart_add' related_product.id %}" class="btn btn-success btn-sm">
+                                                    <i class="bi bi-cart-plus"></i>
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                {% endfor %}
+                    {% endfor %}
+                </div>
             </div>
-        </div>
         {% endif %}
     </div>
+
+    <!-- Image Modal -->
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageModalLabel">{{ product.name }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="{{ product.image.url }}" class="img-fluid" alt="{{ product.name }}">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .product-image-container {
+            position: relative;
+            border-radius: 1rem;
+            overflow: hidden;
+            background: white;
+            padding: 1rem;
+        }
+        
+        .product-image-container img {
+            width: 100%;
+            height: auto;
+            transition: transform 0.3s ease;
+        }
+        
+        .product-image-container:hover img {
+            transform: scale(1.02);
+        }
+        
+        .image-overlay {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .product-image-container:hover .image-overlay {
+            opacity: 1;
+        }
+        
+        .product-info {
+            padding: 2rem;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .price-section {
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+        
+        .description-content {
+            background: var(--light-color);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .breadcrumb {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .breadcrumb-item a {
+            color: var(--primary-color);
+        }
+        
+        .breadcrumb-item.active {
+            color: var(--secondary-color);
+        }
+        
+        .section-header {
+            position: relative;
+        }
+        
+        .section-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1d4ed8 100%);
+            border-radius: 2px;
+        }
+        
+        .related-products {
+            background: var(--light-color);
+            padding: 3rem 0;
+            border-radius: 2rem;
+            margin-top: 4rem;
+        }
+        
+        .form-control {
+            border-radius: 0.75rem;
+            border: 2px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+        }
+        
+        .alert {
+            border: none;
+            border-radius: 1rem;
+            padding: 1rem 1.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .product-info {
+                padding: 1rem;
+            }
+            
+            .related-products {
+                padding: 2rem 0;
+                border-radius: 1rem;
+            }
+        }
+    </style>
+
+    <script>
+        function zoomImage() {
+            const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+            modal.show();
+        }
+    </script>
 {% endblock %}

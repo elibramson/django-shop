@@ -52,18 +52,24 @@ def cart_detail(request):
     """Display the cart contents."""
     cart = Cart(request)
     
-    # Add update forms for each cart item
+    # Prepare cart items with additional data
+    cart_items = []
     for item in cart:
-        item['update_quantity_form'] = CartAddProductForm(initial={
+        cart_items.append({
+            'product': item['product'],
             'quantity': item['quantity'],
-            'override': True,
+            'total_price': f"${(item['price'] * item['quantity']):.2f}",
+            'update_quantity_form': CartAddProductForm(initial={
+                'quantity': item['quantity'],
+                'override': True,
+            })
         })
     
     context = {
-        'cart': cart,
+        'cart_items': cart_items,
         'cart_total': cart.get_formatted_total(),
-        'item_count': cart.get_item_count(),
-        'is_empty': cart.is_empty(),
+        'cart_count': cart.get_item_count(),
+        'is_cart_empty': cart.is_empty(),
     }
     
     return render(request, 'cart/cart_detail.html', context)
